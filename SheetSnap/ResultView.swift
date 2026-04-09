@@ -91,7 +91,7 @@ struct ResultView: View {
 
             Divider().opacity(0.5)
 
-            Text("Click any cell to edit · paste into one destination cell. If a browser pastes into one cell, use CSV or Excel export.")
+            Text("Click any cell to edit")
                 .font(.system(size: 10.5))
                 .foregroundColor(.secondary.opacity(0.6))
                 .padding(.vertical, 10)
