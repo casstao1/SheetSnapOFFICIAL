@@ -78,7 +78,7 @@ class TableModel: ObservableObject {
             switch error {
             case .imageLoad:
                 throw error
-            case .noText, .modelHostUnavailable:
+            case .noText, .modelHostUnavailable, .modelAssetUnavailable:
                 return nil
             }
         } catch {
