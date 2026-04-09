@@ -91,7 +91,7 @@ struct ResultView: View {
 
             Divider().opacity(0.5)
 
-            Text("Click any cell to edit · copy and paste directly into Google Sheets or Excel")
+            Text("Click any cell to edit · paste into one destination cell. If a browser pastes into one cell, use CSV or Excel export.")
                 .font(.system(size: 10.5))
                 .foregroundColor(.secondary.opacity(0.6))
                 .padding(.vertical, 10)
@@ -240,20 +240,72 @@ struct ResultView: View {
     // MARK: - Actions
 
     private func copyToClipboard() {
-        let tsv = currentTSV
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(tsv, forType: .tabularText)
-        NSPasteboard.general.setString(tsv, forType: .string)
-        // HTML table so Google Sheets / web apps paste into proper columns
-        NSPasteboard.general.setString(buildHTMLTable(), forType: .html)
+        let clipboardTSV = currentClipboardTSV
+        let clipboardCSV = currentClipboardCSV
+        let html = buildHTMLTable()
+        let pasteboard = NSPasteboard.general
+        let item = NSPasteboardItem()
+
+        // Native macOS apps and many browsers fall back to plain text first.
+        item.setString(clipboardTSV, forType: .string)
+        item.setString(clipboardTSV, forType: .tabularText)
+        item.setString(clipboardTSV, forType: NSPasteboard.PasteboardType("text/tab-separated-values"))
+        if let utf8Text = clipboardTSV.data(using: .utf8) {
+            item.setData(utf8Text, forType: .string)
+            item.setData(utf8Text, forType: .tabularText)
+            item.setData(utf8Text, forType: NSPasteboard.PasteboardType("public.utf8-plain-text"))
+            item.setData(utf8Text, forType: NSPasteboard.PasteboardType("text/plain"))
+            item.setData(utf8Text, forType: NSPasteboard.PasteboardType("text/tab-separated-values"))
+        }
+
+        // Some browsers prefer CSV over tabular text for external clipboard pastes.
+        item.setString(clipboardCSV, forType: NSPasteboard.PasteboardType("text/csv"))
+        if let utf8CSV = clipboardCSV.data(using: .utf8) {
+            item.setData(utf8CSV, forType: NSPasteboard.PasteboardType("text/csv"))
+        }
+
+        // Browsers vary in which HTML clipboard flavor they inspect.
+        item.setString(html, forType: .html)
+        item.setString(html, forType: NSPasteboard.PasteboardType("text/html"))
+        if let utf8HTML = html.data(using: .utf8) {
+            item.setData(utf8HTML, forType: .html)
+            item.setData(utf8HTML, forType: NSPasteboard.PasteboardType("text/html"))
+        }
+
+        pasteboard.clearContents()
+        pasteboard.writeObjects([item])
         withAnimation { copied = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation { copied = false }
         }
     }
 
+    private var currentClipboardTSV: String {
+        editableCells
+            .map { $0.joined(separator: "\t") }
+            .joined(separator: "\r\n")
+    }
+
+    private var currentClipboardCSV: String {
+        editableCells
+            .map { row in
+                row.map { cell in
+                    let escaped = cell.replacingOccurrences(of: "\"", with: "\"\"")
+                    return escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n")
+                        ? "\"\(escaped)\""
+                        : escaped
+                }
+                .joined(separator: ",")
+            }
+            .joined(separator: "\r\n")
+    }
+
     private func buildHTMLTable() -> String {
-        var html = "<table>"
+        var html = """
+        <html>
+        <head><meta charset="utf-8"></head>
+        <body><!--StartFragment--><table>
+        """
         for (i, row) in editableCells.enumerated() {
             html += "<tr>"
             for cell in row {
@@ -262,11 +314,12 @@ struct ResultView: View {
                     .replacingOccurrences(of: "&", with: "&amp;")
                     .replacingOccurrences(of: "<", with: "&lt;")
                     .replacingOccurrences(of: ">", with: "&gt;")
+                    .replacingOccurrences(of: "\"", with: "&quot;")
                 html += "<\(tag)>\(escaped)</\(tag)>"
             }
             html += "</tr>"
         }
-        html += "</table>"
+        html += "</table><!--EndFragment--></body></html>"
         return html
     }
 

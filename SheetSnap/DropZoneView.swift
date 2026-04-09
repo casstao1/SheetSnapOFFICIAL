@@ -7,6 +7,7 @@ struct DropZoneView: View {
     @State private var isDragOver = false
     @State private var isHoveringButton = false
     @State private var isLoadingDrop = false
+    @State private var openPanel: NSOpenPanel?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -163,29 +164,40 @@ struct DropZoneView: View {
         guard let provider = providers.first else { return false }
         isDragOver = false
         isLoadingDrop = true
+        dismissOpenPanelIfNeeded()
 
-        if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
-            provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier) { item, _ in
-                if let data = item as? Data,
-                   let url = URL(dataRepresentation: data, relativeTo: nil) {
-                    DispatchQueue.main.async {
-                        isLoadingDrop = false
-                        onImageDropped(url)
-                    }
-                } else {
-                    DispatchQueue.main.async { isLoadingDrop = false }
-                }
+        let finishWithURL: (URL?) -> Void = { url in
+            DispatchQueue.main.async {
+                isLoadingDrop = false
+                guard let url else { return }
+                onImageDropped(url)
             }
-        } else if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-            provider.loadItem(forTypeIdentifier: UTType.image.identifier) { item, _ in
-                if let url = item as? URL {
-                    DispatchQueue.main.async {
-                        isLoadingDrop = false
-                        onImageDropped(url)
-                    }
-                } else {
-                    DispatchQueue.main.async { isLoadingDrop = false }
+        }
+
+        if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+            provider.loadFileRepresentation(forTypeIdentifier: UTType.image.identifier) { url, _ in
+                guard let url, let importedURL = importAccessibleCopy(of: url) else {
+                    finishWithURL(nil)
+                    return
                 }
+                finishWithURL(importedURL)
+            }
+        } else if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+            provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier) { item, _ in
+                let sourceURL: URL?
+                if let data = item as? Data {
+                    sourceURL = URL(dataRepresentation: data, relativeTo: nil)
+                } else if let url = item as? URL {
+                    sourceURL = url
+                } else {
+                    sourceURL = nil
+                }
+
+                guard let sourceURL, let importedURL = importAccessibleCopy(of: sourceURL) else {
+                    finishWithURL(nil)
+                    return
+                }
+                finishWithURL(importedURL)
             }
         } else {
             isLoadingDrop = false
@@ -201,8 +213,19 @@ struct DropZoneView: View {
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.prompt = "Extract Table"
-        if panel.runModal() == .OK, let url = panel.url {
-            onImageDropped(url)
+        openPanel = panel
+        panel.begin { response in
+            let selectedURL = response == .OK ? panel.url : nil
+            DispatchQueue.main.async {
+                if openPanel === panel {
+                    openPanel = nil
+                }
+                guard let selectedURL,
+                      let importedURL = importAccessibleCopy(of: selectedURL) else {
+                    return
+                }
+                onImageDropped(importedURL)
+            }
         }
     }
 
@@ -232,6 +255,37 @@ struct DropZoneView: View {
             onImageDropped(tmp)
         } catch {
             // Silently fail — no URL to process
+        }
+    }
+
+    private func dismissOpenPanelIfNeeded() {
+        guard let panel = openPanel else { return }
+        openPanel = nil
+        panel.cancel(nil)
+        panel.orderOut(nil)
+    }
+
+    private func importAccessibleCopy(of sourceURL: URL) -> URL? {
+        let didAccess = sourceURL.startAccessingSecurityScopedResource()
+        defer {
+            if didAccess {
+                sourceURL.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        let ext = sourceURL.pathExtension.isEmpty ? "png" : sourceURL.pathExtension
+        let destination = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension(ext)
+
+        do {
+            if FileManager.default.fileExists(atPath: destination.path) {
+                try FileManager.default.removeItem(at: destination)
+            }
+            try FileManager.default.copyItem(at: sourceURL, to: destination)
+            return destination
+        } catch {
+            return nil
         }
     }
 }
