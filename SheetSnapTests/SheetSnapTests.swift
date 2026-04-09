@@ -1,35 +1,83 @@
-//
-//  SheetSnapTests.swift
-//  SheetSnapTests
-//
-//  Created by Felicia Hou on 3/31/26.
-//
-
 import XCTest
+@testable import SheetSnap
 
 final class SheetSnapTests: XCTestCase {
+    func testTableTSVNormalizeDropsLeadingCaptionForMultiColumnTable() {
+        let raw = """
+        Table 4: table 3 with column headers added
+        Role\tActor
+        Main character\tDaniel Radcliffe
+        """
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        let normalized = TableTSV.normalize(raw)
+
+        XCTAssertEqual(
+            normalized,
+            """
+            Role\tActor
+            Main character\tDaniel Radcliffe
+            """
+        )
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func testTableTSVNormalizeKeepsSingleColumnTable() {
+        let raw = """
+        Single column item
+        Another item
+        """
+
+        XCTAssertEqual(TableTSV.normalize(raw), raw)
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    func testDocTagsParserConvertsOTSLToTSV() {
+        let docTags = """
+        <otsl><ched>Role<ched>Actor<nl/><fcel>Main character<fcel>Daniel Radcliffe<nl/><fcel>Sidekick 1<fcel>Rupert Grint<nl/></otsl>
+        """
+
+        let tsv = DocTagsParser.toTSV(docTags)
+
+        XCTAssertEqual(
+            tsv,
+            """
+            Role\tActor
+            Main character\tDaniel Radcliffe
+            Sidekick 1\tRupert Grint
+            """
+        )
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        measure {
-            // Put the code you want to measure the time of here.
-        }
+    func testDocTagsParserFallsBackToPipeTables() {
+        let raw = """
+        Role | Actor
+        Main character | Daniel Radcliffe
+        Sidekick 1 | Rupert Grint
+        """
+
+        let tsv = DocTagsParser.toTSV(raw)
+
+        XCTAssertEqual(
+            tsv,
+            """
+            Role\tActor
+            Main character\tDaniel Radcliffe
+            Sidekick 1\tRupert Grint
+            """
+        )
     }
 
+    func testTableTSVRejectsSingleColumnTextBlob() {
+        let raw = """
+        This is just OCR text
+        not a structured table
+        """
+
+        XCTAssertFalse(TableTSV.isLikelyTable(raw))
+    }
+
+    func testModelAssetUnavailableErrorMessageIsProductFacing() {
+        XCTAssertEqual(
+            SheetSnapError.modelAssetUnavailable.errorDescription,
+            "The table model is not available on this Mac yet. Please try again after the app finishes downloading its Apple-hosted assets."
+        )
+    }
 }

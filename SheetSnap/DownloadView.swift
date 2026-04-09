@@ -3,6 +3,8 @@ import SwiftUI
 struct DownloadView: View {
     let progress: Double
 
+    private let downloadSize = "~500 MB"
+
     var body: some View {
         VStack(spacing: 28) {
             Spacer()
@@ -46,7 +48,7 @@ struct DownloadView: View {
                         .font(.system(size: 12, weight: .medium, design: .monospaced))
                         .foregroundColor(.accentColor)
                     Spacer()
-                    Text("~1.5 GB · one-time download")
+                    Text("\(downloadSize) · one-time download")
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
                 }

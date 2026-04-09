@@ -3,8 +3,10 @@ import UniformTypeIdentifiers
 
 struct DropZoneView: View {
     let onImageDropped: (URL) -> Void
+    let onShowHistory: () -> Void
     @State private var isDragOver = false
     @State private var isHoveringButton = false
+    @State private var isLoadingDrop = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,6 +20,23 @@ struct DropZoneView: View {
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
                 }
                 Spacer()
+                // History button
+                Button(action: onShowHistory) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .font(.system(size: 11, weight: .medium))
+                        Text("History")
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 5)
+                    .background(Color(NSColor.controlBackgroundColor).opacity(0.8))
+                    .foregroundColor(.secondary)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .overlay(RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color.secondary.opacity(0.2), lineWidth: 0.5))
+                }
+                .buttonStyle(.plain)
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 14)
@@ -67,19 +86,27 @@ struct DropZoneView: View {
                     .animation(.spring(response: 0.25), value: isDragOver)
 
                 VStack(spacing: 9) {
-                    Image(systemName: isDragOver ? "arrow.down.circle.fill" : "arrow.down.circle")
-                        .font(.system(size: 28, weight: .light))
-                        .foregroundColor(isDragOver ? .accentColor : .secondary)
-                        .scaleEffect(isDragOver ? 1.12 : 1.0)
-                        .animation(.spring(response: 0.25), value: isDragOver)
+                    if isLoadingDrop {
+                        ProgressView()
+                            .scaleEffect(0.9)
+                            .frame(width: 28, height: 28)
+                    } else {
+                        Image(systemName: isDragOver ? "arrow.down.circle.fill" : "arrow.down.circle")
+                            .font(.system(size: 28, weight: .light))
+                            .foregroundColor(isDragOver ? .accentColor : .secondary)
+                            .scaleEffect(isDragOver ? 1.12 : 1.0)
+                            .animation(.spring(response: 0.25), value: isDragOver)
+                    }
 
                     VStack(spacing: 3) {
-                        Text(isDragOver ? "Release to extract" : "Drop image here")
+                        Text(isLoadingDrop ? "Loading…" : (isDragOver ? "Release to extract" : "Drop image here"))
                             .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(isDragOver ? .accentColor : .primary)
-                        Text("JPG · PNG · HEIC")
-                            .font(.system(size: 11))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(isDragOver || isLoadingDrop ? .accentColor : .primary)
+                        if !isLoadingDrop {
+                            Text("JPG · PNG · HEIC")
+                                .font(.system(size: 11))
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
             }
@@ -119,31 +146,54 @@ struct DropZoneView: View {
 
             Spacer()
 
-            Text("Runs 100% on your Mac · no internet required after setup")
+            Text("Runs on your Mac · first launch may download the AI model")
                 .font(.system(size: 10.5))
                 .foregroundColor(.secondary.opacity(0.55))
                 .padding(.bottom, 18)
         }
+        // Listen for Cmd+Shift+V paste notification
+        .onReceive(NotificationCenter.default.publisher(for: .pasteImage)) { _ in
+            handlePaste()
+        }
     }
+
+    // MARK: - Drop handler
 
     func handleDrop(providers: [NSItemProvider]) -> Bool {
         guard let provider = providers.first else { return false }
+        isDragOver = false
+        isLoadingDrop = true
+
         if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
             provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier) { item, _ in
                 if let data = item as? Data,
                    let url = URL(dataRepresentation: data, relativeTo: nil) {
-                    DispatchQueue.main.async { onImageDropped(url) }
+                    DispatchQueue.main.async {
+                        isLoadingDrop = false
+                        onImageDropped(url)
+                    }
+                } else {
+                    DispatchQueue.main.async { isLoadingDrop = false }
+                }
+            }
+        } else if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+            provider.loadItem(forTypeIdentifier: UTType.image.identifier) { item, _ in
+                if let url = item as? URL {
+                    DispatchQueue.main.async {
+                        isLoadingDrop = false
+                        onImageDropped(url)
+                    }
+                } else {
+                    DispatchQueue.main.async { isLoadingDrop = false }
                 }
             }
         } else {
-            provider.loadItem(forTypeIdentifier: UTType.image.identifier) { item, _ in
-                if let url = item as? URL {
-                    DispatchQueue.main.async { onImageDropped(url) }
-                }
-            }
+            isLoadingDrop = false
         }
         return true
     }
+
+    // MARK: - Choose file
 
     func chooseFile() {
         let panel = NSOpenPanel()
@@ -153,6 +203,35 @@ struct DropZoneView: View {
         panel.prompt = "Extract Table"
         if panel.runModal() == .OK, let url = panel.url {
             onImageDropped(url)
+        }
+    }
+
+    // MARK: - Paste from clipboard
+
+    func handlePaste() {
+        let pb = NSPasteboard.general
+        // Try to get image data from clipboard
+        if let data = pb.data(forType: .tiff) ?? pb.data(forType: .png) {
+            saveAndProcess(data: data, ext: "png")
+        } else if let img = NSImage(pasteboard: pb) {
+            // Convert NSImage to PNG data
+            if let tiff = img.tiffRepresentation,
+               let rep = NSBitmapImageRep(data: tiff),
+               let png = rep.representation(using: .png, properties: [:]) {
+                saveAndProcess(data: png, ext: "png")
+            }
+        }
+    }
+
+    private func saveAndProcess(data: Data, ext: String) {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension(ext)
+        do {
+            try data.write(to: tmp)
+            onImageDropped(tmp)
+        } catch {
+            // Silently fail — no URL to process
         }
     }
 }

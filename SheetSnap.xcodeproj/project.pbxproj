@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F0AA00012F90000100CC0001 /* ModelAssetPackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AA00112F90000100CC0001 /* ModelAssetPackManager.swift */; };
+		F0AA00022F90000100CC0001 /* BackgroundDownloadHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AA00132F90000100CC0001 /* BackgroundDownloadHandler.swift */; };
+		F0AA00032F90000100CC0001 /* SheetSnapModelDownloadExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = F0AA00162F90000100CC0001 /* SheetSnapModelDownloadExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		29AE9A332F7D72B800CA112C /* TableModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29AE9A322F7D72B800CA112C /* TableModel.swift */; };
 		29AE9A372F7D72E800CA112C /* DropZoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29AE9A362F7D72E700CA112C /* DropZoneView.swift */; };
 		29AE9A392F7D731600CA112C /* DownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29AE9A382F7D731200CA112C /* DownloadView.swift */; };
@@ -22,9 +25,19 @@
 		29C87F6B2F7C853500F62EC5 /* SheetSnapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C87F6A2F7C853500F62EC5 /* SheetSnapTests.swift */; };
 		29C87F752F7C853500F62EC5 /* SheetSnapUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C87F742F7C853500F62EC5 /* SheetSnapUITests.swift */; };
 		29C87F772F7C853500F62EC5 /* SheetSnapUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C87F762F7C853500F62EC5 /* SheetSnapUITestsLaunchTests.swift */; };
+		DF8F3C882F84851800CC6D31 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF8F3C872F84851800CC6D31 /* HistoryView.swift */; };
+		DF8F3C892F84851800CC6D31 /* HistoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF8F3C862F84851800CC6D31 /* HistoryManager.swift */; };
+		DF8F3C8B2F84999900CC6D31 /* VisionTableExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF8F3C8A2F84999900CC6D31 /* VisionTableExtractor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		F0AA00522F90000100CC0001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29C87F4D2F7C853300F62EC5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F0AA00312F90000100CC0001;
+			remoteInfo = SheetSnapModelDownloadExtension;
+		};
 		29C87F672F7C853500F62EC5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29C87F4D2F7C853300F62EC5 /* Project object */;
@@ -41,7 +54,26 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		F0AA00442F90000100CC0001 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Extensions;
+			dstSubfolderSpec = 1;
+			files = (
+				F0AA00032F90000100CC0001 /* SheetSnapModelDownloadExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		F0AA00112F90000100CC0001 /* ModelAssetPackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelAssetPackManager.swift; sourceTree = "<group>"; };
+		F0AA00132F90000100CC0001 /* BackgroundDownloadHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundDownloadHandler.swift; sourceTree = "<group>"; };
+		F0AA00142F90000100CC0001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F0AA00152F90000100CC0001 /* SheetSnapModelDownloadExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SheetSnapModelDownloadExtension.entitlements; sourceTree = "<group>"; };
+		F0AA00162F90000100CC0001 /* SheetSnapModelDownloadExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SheetSnapModelDownloadExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		29AE9A322F7D72B800CA112C /* TableModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableModel.swift; sourceTree = "<group>"; };
 		29AE9A362F7D72E700CA112C /* DropZoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropZoneView.swift; sourceTree = "<group>"; };
 		29AE9A382F7D731200CA112C /* DownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadView.swift; sourceTree = "<group>"; };
@@ -59,9 +91,19 @@
 		29C87F702F7C853500F62EC5 /* SheetSnapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SheetSnapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		29C87F742F7C853500F62EC5 /* SheetSnapUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetSnapUITests.swift; sourceTree = "<group>"; };
 		29C87F762F7C853500F62EC5 /* SheetSnapUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetSnapUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		DF8F3C862F84851800CC6D31 /* HistoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryManager.swift; sourceTree = "<group>"; };
+		DF8F3C872F84851800CC6D31 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		DF8F3C8A2F84999900CC6D31 /* VisionTableExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionTableExtractor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F0AA00422F90000100CC0001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		29C87F522F7C853300F62EC5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -98,7 +140,10 @@
 		29C87F4C2F7C853300F62EC5 = {
 			isa = PBXGroup;
 			children = (
+				DF8F3C862F84851800CC6D31 /* HistoryManager.swift */,
+				DF8F3C872F84851800CC6D31 /* HistoryView.swift */,
 				29C87F572F7C853300F62EC5 /* SheetSnap */,
+				F0AA00212F90000100CC0001 /* SheetSnapModelDownloadExtension */,
 				29C87F692F7C853500F62EC5 /* SheetSnapTests */,
 				29C87F732F7C853500F62EC5 /* SheetSnapUITests */,
 				29AE9A422F7D758D00CA112C /* Frameworks */,
@@ -110,10 +155,21 @@
 			isa = PBXGroup;
 			children = (
 				29C87F552F7C853300F62EC5 /* SheetSnap.app */,
+				F0AA00162F90000100CC0001 /* SheetSnapModelDownloadExtension.appex */,
 				29C87F662F7C853500F62EC5 /* SheetSnapTests.xctest */,
 				29C87F702F7C853500F62EC5 /* SheetSnapUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F0AA00212F90000100CC0001 /* SheetSnapModelDownloadExtension */ = {
+			isa = PBXGroup;
+			children = (
+				F0AA00132F90000100CC0001 /* BackgroundDownloadHandler.swift */,
+				F0AA00142F90000100CC0001 /* Info.plist */,
+				F0AA00152F90000100CC0001 /* SheetSnapModelDownloadExtension.entitlements */,
+			);
+			path = SheetSnapModelDownloadExtension;
 			sourceTree = "<group>";
 		};
 		29C87F572F7C853300F62EC5 /* SheetSnap */ = {
@@ -122,6 +178,8 @@
 				29C87F582F7C853300F62EC5 /* SheetSnapApp.swift */,
 				29C87F5A2F7C853300F62EC5 /* ContentView.swift */,
 				29AE9A322F7D72B800CA112C /* TableModel.swift */,
+				F0AA00112F90000100CC0001 /* ModelAssetPackManager.swift */,
+				DF8F3C8A2F84999900CC6D31 /* VisionTableExtractor.swift */,
 				29AE9A362F7D72E700CA112C /* DropZoneView.swift */,
 				29AE9A382F7D731200CA112C /* DownloadView.swift */,
 				29AE9A3A2F7D732300CA112C /* ProcessingView.swift */,
@@ -162,6 +220,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		F0AA00312F90000100CC0001 /* SheetSnapModelDownloadExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F0AA00632F90000100CC0001 /* Build configuration list for PBXNativeTarget "SheetSnapModelDownloadExtension" */;
+			buildPhases = (
+				F0AA00412F90000100CC0001 /* Sources */,
+				F0AA00422F90000100CC0001 /* Frameworks */,
+				F0AA00432F90000100CC0001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SheetSnapModelDownloadExtension;
+			productName = SheetSnapModelDownloadExtension;
+			productReference = F0AA00162F90000100CC0001 /* SheetSnapModelDownloadExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		29C87F542F7C853300F62EC5 /* SheetSnap */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 29C87F7A2F7C853500F62EC5 /* Build configuration list for PBXNativeTarget "SheetSnap" */;
@@ -169,10 +244,12 @@
 				29C87F512F7C853300F62EC5 /* Sources */,
 				29C87F522F7C853300F62EC5 /* Frameworks */,
 				29C87F532F7C853300F62EC5 /* Resources */,
+				F0AA00442F90000100CC0001 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				F0AA00512F90000100CC0001 /* PBXTargetDependency */,
 			);
 			name = SheetSnap;
 			productName = SheetSnap;
@@ -223,8 +300,11 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1540;
+				LastUpgradeCheck = 2640;
 				TargetAttributes = {
+					F0AA00312F90000100CC0001 = {
+						CreatedOnToolsVersion = 17.0;
+					};
 					29C87F542F7C853300F62EC5 = {
 						CreatedOnToolsVersion = 15.4;
 					};
@@ -254,6 +334,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				F0AA00312F90000100CC0001 /* SheetSnapModelDownloadExtension */,
 				29C87F542F7C853300F62EC5 /* SheetSnap */,
 				29C87F652F7C853500F62EC5 /* SheetSnapTests */,
 				29C87F6F2F7C853500F62EC5 /* SheetSnapUITests */,
@@ -262,6 +343,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		F0AA00432F90000100CC0001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		29C87F532F7C853300F62EC5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -288,10 +376,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		F0AA00412F90000100CC0001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0AA00022F90000100CC0001 /* BackgroundDownloadHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		29C87F512F7C853300F62EC5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F0AA00012F90000100CC0001 /* ModelAssetPackManager.swift in Sources */,
 				29AE9A372F7D72E800CA112C /* DropZoneView.swift in Sources */,
 				29AE9A3B2F7D732600CA112C /* ProcessingView.swift in Sources */,
 				29AE9A332F7D72B800CA112C /* TableModel.swift in Sources */,
@@ -300,6 +397,9 @@
 				29AE9A3D2F7D733A00CA112C /* ResultView.swift in Sources */,
 				29AE9A392F7D731600CA112C /* DownloadView.swift in Sources */,
 				29AE9A3F2F7D734900CA112C /* ErrorView.swift in Sources */,
+				DF8F3C882F84851800CC6D31 /* HistoryView.swift in Sources */,
+				DF8F3C892F84851800CC6D31 /* HistoryManager.swift in Sources */,
+				DF8F3C8B2F84999900CC6D31 /* VisionTableExtractor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,6 +423,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		F0AA00512F90000100CC0001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F0AA00312F90000100CC0001 /* SheetSnapModelDownloadExtension */;
+			targetProxy = F0AA00522F90000100CC0001 /* PBXContainerItemProxy */;
+		};
 		29C87F682F7C853500F62EC5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 29C87F542F7C853300F62EC5 /* SheetSnap */;
@@ -336,6 +441,64 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		F0AA00612F90000100CC0001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = SheetSnapModelDownloadExtension/SheetSnapModelDownloadExtension.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = Z8V566C555;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SheetSnapModelDownloadExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.SheetSnap.SheetSnap.ModelDownloadExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F0AA00622F90000100CC0001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = SheetSnapModelDownloadExtension/SheetSnapModelDownloadExtension.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = Z8V566C555;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SheetSnapModelDownloadExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.SheetSnap.SheetSnap.ModelDownloadExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		29C87F782F7C853500F62EC5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -370,6 +533,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -392,6 +556,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -431,6 +596,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -446,6 +612,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
@@ -459,24 +626,17 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"SheetSnap/Preview Content\"";
 				DEVELOPMENT_TEAM = Z8V566C555;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
-				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				INFOPLIST_KEY_BAAppGroupID = "$(TeamIdentifierPrefix)group.com.SheetSnap.SheetSnap.backgroundassets";
+				INFOPLIST_KEY_BAHasManagedAssetPacks = YES;
+				INFOPLIST_KEY_BAUsesAppleHosting = YES;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.1;
+					MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.SheetSnap.SheetSnap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -484,7 +644,6 @@
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -497,24 +656,17 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"SheetSnap/Preview Content\"";
 				DEVELOPMENT_TEAM = Z8V566C555;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
-				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				INFOPLIST_KEY_BAAppGroupID = "$(TeamIdentifierPrefix)group.com.SheetSnap.SheetSnap.backgroundassets";
+				INFOPLIST_KEY_BAHasManagedAssetPacks = YES;
+				INFOPLIST_KEY_BAUsesAppleHosting = YES;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.1;
+					MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.SheetSnap.SheetSnap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -522,20 +674,19 @@
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
 		29C87F7E2F7C853500F62EC5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
-				MACOSX_DEPLOYMENT_TARGET = 14.1;
+					MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = come.SheetSnap.SheetSnapTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -551,13 +702,13 @@
 		29C87F7F2F7C853500F62EC5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
-				MACOSX_DEPLOYMENT_TARGET = 14.1;
+					MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = come.SheetSnap.SheetSnapTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -573,12 +724,12 @@
 		29C87F812F7C853500F62EC5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
-				MACOSX_DEPLOYMENT_TARGET = 14.1;
+					MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = come.SheetSnap.SheetSnapUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -594,12 +745,12 @@
 		29C87F822F7C853500F62EC5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
-				MACOSX_DEPLOYMENT_TARGET = 14.1;
+					MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = come.SheetSnap.SheetSnapUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -615,6 +766,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F0AA00632F90000100CC0001 /* Build configuration list for PBXNativeTarget "SheetSnapModelDownloadExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F0AA00612F90000100CC0001 /* Debug */,
+				F0AA00622F90000100CC0001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		29C87F502F7C853300F62EC5 /* Build configuration list for PBXProject "SheetSnap" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
