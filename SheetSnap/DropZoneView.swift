@@ -10,6 +10,10 @@ struct DropZoneView: View {
     @State private var openPanel: NSOpenPanel?
     @State private var didTriggerInitialPrompt = false
 
+    private var isScreenshotMode: Bool {
+        ProcessInfo.processInfo.environment["SHEETSNAP_SCREENSHOT_MODE"] != nil
+    }
+
     var body: some View {
         VStack(spacing: 20) {
             HStack {
@@ -191,6 +195,7 @@ struct DropZoneView: View {
     private func requestInitialFileAccessIfNeeded() {
         guard !didTriggerInitialPrompt else { return }
         didTriggerInitialPrompt = true
+        guard !isScreenshotMode else { return }
         guard !didPromptForInitialFileAccess else { return }
         didPromptForInitialFileAccess = true
         chooseFile()

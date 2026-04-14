@@ -42,6 +42,11 @@ class HistoryManager: ObservableObject {
         save()
     }
 
+    func replaceEntries(_ newEntries: [HistoryEntry]) {
+        entries = newEntries
+        save()
+    }
+
     private func load() {
         guard let data = UserDefaults.standard.data(forKey: key),
               let decoded = try? JSONDecoder().decode([HistoryEntry].self, from: data) else { return }

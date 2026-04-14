@@ -14,6 +14,10 @@ struct ResultView: View {
     // Editable cell grid — initialized from tsv
     @State private var editableCells: [[String]] = []
 
+    private var screenshotMode: String {
+        ProcessInfo.processInfo.environment["SHEETSNAP_SCREENSHOT_MODE"] ?? ""
+    }
+
     private var columnCount: Int {
         editableCells.map(\.count).max() ?? 0
     }
@@ -65,7 +69,8 @@ struct ResultView: View {
                                         text: binding(row: 0, col: i),
                                         isHeader: true,
                                         width: i < widths.count ? widths[i] : 80,
-                                        isLast: i == columnCount - 1
+                                        isLast: i == columnCount - 1,
+                                        shouldFocusForScreenshot: false
                                     )
                                 }
                             }
@@ -80,7 +85,8 @@ struct ResultView: View {
                                         isHeader: false,
                                         width: i < widths.count ? widths[i] : 80,
                                         isLast: i == columnCount - 1,
-                                        isAlternate: rowIdx % 2 != 0
+                                        isAlternate: rowIdx % 2 != 0,
+                                        shouldFocusForScreenshot: screenshotMode == "editing" && rowIdx == 1 && i == 2
                                     )
                                 }
                             }
@@ -403,6 +409,7 @@ struct EditableCell: View {
     let width: CGFloat
     let isLast: Bool
     var isAlternate: Bool = false
+    var shouldFocusForScreenshot: Bool = false
 
     @FocusState private var isFocused: Bool
 
@@ -443,5 +450,10 @@ struct EditableCell: View {
                 }
             }
             .animation(.easeInOut(duration: 0.1), value: isFocused)
+            .task {
+                guard shouldFocusForScreenshot else { return }
+                try? await Task.sleep(for: .milliseconds(200))
+                isFocused = true
+            }
     }
 }
