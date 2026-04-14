@@ -4,157 +4,80 @@ import UniformTypeIdentifiers
 struct DropZoneView: View {
     let onImageDropped: (URL) -> Void
     let onShowHistory: () -> Void
+    @AppStorage("didPromptForInitialFileAccess") private var didPromptForInitialFileAccess = false
     @State private var isDragOver = false
-    @State private var isHoveringButton = false
     @State private var isLoadingDrop = false
     @State private var openPanel: NSOpenPanel?
+    @State private var didTriggerInitialPrompt = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Title bar area
+        VStack(spacing: 20) {
             HStack {
-                HStack(spacing: 7) {
-                    Image(systemName: "tablecells.badge.ellipsis")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.accentColor)
-                    Text("SheetSnap")
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                }
+                Label("SheetSnap", systemImage: "tablecells")
+                    .font(.headline)
                 Spacer()
-                // History button
-                Button(action: onShowHistory) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .font(.system(size: 11, weight: .medium))
-                        Text("History")
-                            .font(.system(size: 11, weight: .medium))
-                    }
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 5)
-                    .background(Color(NSColor.controlBackgroundColor).opacity(0.8))
-                    .foregroundColor(.secondary)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .overlay(RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color.secondary.opacity(0.2), lineWidth: 0.5))
-                }
-                .buttonStyle(.plain)
+                Button("History", action: onShowHistory)
+                    .buttonStyle(.bordered)
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 14)
-            .background(Color(NSColor.windowBackgroundColor))
-
-            Divider().opacity(0.5)
+            .padding(.top, 18)
 
             Spacer()
 
-            // Hero icon
-            VStack(spacing: 16) {
-                ZStack {
-                    Circle()
-                        .fill(Color.accentColor.opacity(0.08))
-                        .frame(width: 88, height: 88)
-                    Image(systemName: "camera.viewfinder")
-                        .font(.system(size: 38, weight: .ultraLight))
-                        .foregroundColor(.accentColor)
+            VStack(spacing: 18) {
+                ContentUnavailableView {
+                    Label("Import a Table Image", systemImage: "tablecells.badge.ellipsis")
+                } description: {
+                    Text("Choose an image or drop one here to extract rows and columns.")
                 }
 
-                VStack(spacing: 5) {
-                    Text("Photo to Spreadsheet")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                    Text("Drop a photo of any table — get instant\ncopy-paste data for Excel or Google Sheets")
-                        .font(.system(size: 12.5))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(2)
-                }
-            }
-
-            Spacer()
-
-            // Drop zone
-            ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(
-                        isDragOver ? Color.accentColor : Color.secondary.opacity(0.25),
-                        style: StrokeStyle(lineWidth: isDragOver ? 2 : 1.5, dash: [6, 4])
-                    )
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(isDragOver
-                                  ? Color.accentColor.opacity(0.05)
-                                  : Color(NSColor.controlBackgroundColor).opacity(0.4))
-                    )
-                    .animation(.spring(response: 0.25), value: isDragOver)
-
-                VStack(spacing: 9) {
-                    if isLoadingDrop {
-                        ProgressView()
-                            .scaleEffect(0.9)
-                            .frame(width: 28, height: 28)
-                    } else {
-                        Image(systemName: isDragOver ? "arrow.down.circle.fill" : "arrow.down.circle")
-                            .font(.system(size: 28, weight: .light))
-                            .foregroundColor(isDragOver ? .accentColor : .secondary)
-                            .scaleEffect(isDragOver ? 1.12 : 1.0)
-                            .animation(.spring(response: 0.25), value: isDragOver)
-                    }
-
+                GroupBox {
                     VStack(spacing: 3) {
-                        Text(isLoadingDrop ? "Loading…" : (isDragOver ? "Release to extract" : "Drop image here"))
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(isDragOver || isLoadingDrop ? .accentColor : .primary)
-                        if !isLoadingDrop {
-                            Text("JPG · PNG · HEIC")
-                                .font(.system(size: 11))
+                        if isLoadingDrop {
+                            ProgressView()
+                                .controlSize(.small)
+                            Text("Importing image…")
+                                .font(.callout.weight(.medium))
+                        } else {
+                            Text(isDragOver ? "Release to import" : "Drop image here")
+                                .font(.callout.weight(.medium))
+                            Text("PNG, JPG, HEIC, TIFF")
+                                .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                     }
+                    .frame(maxWidth: .infinity, minHeight: 110)
                 }
-            }
-            .frame(height: 140)
-            .padding(.horizontal, 36)
-            .onDrop(of: [.image, .fileURL], isTargeted: $isDragOver, perform: handleDrop)
-
-            // Or divider
-            HStack(spacing: 10) {
-                Rectangle().fill(Color.secondary.opacity(0.15)).frame(height: 0.5)
-                Text("or").font(.system(size: 11)).foregroundColor(.secondary)
-                Rectangle().fill(Color.secondary.opacity(0.15)).frame(height: 0.5)
-            }
-            .padding(.horizontal, 52)
-            .padding(.vertical, 14)
-
-            // Choose file button
-            Button(action: chooseFile) {
-                HStack(spacing: 6) {
-                    Image(systemName: "folder")
-                        .font(.system(size: 12, weight: .medium))
-                    Text("Choose Image File")
-                        .font(.system(size: 13, weight: .medium))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isDragOver ? Color.accentColor : Color.clear, lineWidth: 2)
                 }
-                .padding(.horizontal, 22)
-                .padding(.vertical, 9)
-                .background(Color.accentColor)
-                .foregroundColor(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 9))
-                .shadow(color: .accentColor.opacity(isHoveringButton ? 0.35 : 0.2),
-                        radius: isHoveringButton ? 8 : 4, y: 2)
-                .scaleEffect(isHoveringButton ? 1.02 : 1.0)
-                .animation(.spring(response: 0.2), value: isHoveringButton)
+                .onDrop(of: [.image, .fileURL], isTargeted: $isDragOver, perform: handleDrop)
+
+                HStack(spacing: 10) {
+                    Button("Choose Image", action: chooseFile)
+                        .buttonStyle(.borderedProminent)
+                    Button("Paste Image", action: handlePaste)
+                        .buttonStyle(.bordered)
+                }
+
+                Text("Files stay on your Mac. The model may download on first launch.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
             }
-            .buttonStyle(.plain)
-            .onHover { h in isHoveringButton = h }
+            .frame(maxWidth: 420)
+            .padding(.horizontal, 24)
 
             Spacer()
-
-            Text("Runs on your Mac · first launch may download the AI model")
-                .font(.system(size: 10.5))
-                .foregroundColor(.secondary.opacity(0.55))
-                .padding(.bottom, 18)
         }
+        .padding(.bottom, 20)
         // Listen for Cmd+Shift+V paste notification
         .onReceive(NotificationCenter.default.publisher(for: .pasteImage)) { _ in
             handlePaste()
+        }
+        .task {
+            requestInitialFileAccessIfNeeded()
         }
     }
 
@@ -263,6 +186,14 @@ struct DropZoneView: View {
         openPanel = nil
         panel.cancel(nil)
         panel.orderOut(nil)
+    }
+
+    private func requestInitialFileAccessIfNeeded() {
+        guard !didTriggerInitialPrompt else { return }
+        didTriggerInitialPrompt = true
+        guard !didPromptForInitialFileAccess else { return }
+        didPromptForInitialFileAccess = true
+        chooseFile()
     }
 
     private func importAccessibleCopy(of sourceURL: URL) -> URL? {
