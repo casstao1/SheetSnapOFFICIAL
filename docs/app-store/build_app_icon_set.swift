@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 
-let sourceURL = URL(fileURLWithPath: "/Users/castao/Desktop/Screenshot 2026-04-15 at 11.35.04 AM.png")
+let sourceURL = URL(fileURLWithPath: "/Users/castao/Desktop/freepik_make-this-reference-image_2794538417.png")
 let iconSetURL = URL(fileURLWithPath: "/Users/castao/Desktop/SheetSnap/SheetSnapOFFICIAL/SheetSnap/Assets.xcassets/AppIcon.appiconset")
 
 struct IconSpec {

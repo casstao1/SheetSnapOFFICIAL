@@ -75,7 +75,7 @@
 		29AE9A3A2F7D732300CA112C /* ProcessingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingView.swift; sourceTree = "<group>"; };
 		29AE9A3C2F7D733500CA112C /* ResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
 		29AE9A3E2F7D734600CA112C /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
-		29C87F552F7C853300F62EC5 /* SheetSnap: Table OCR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SheetSnap: Table OCR.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		29C87F552F7C853300F62EC5 /* SheetSnap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SheetSnap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		29C87F582F7C853300F62EC5 /* SheetSnapApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetSnapApp.swift; sourceTree = "<group>"; };
 		29C87F5A2F7C853300F62EC5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		29C87F5C2F7C853400F62EC5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -154,7 +154,7 @@
 		29C87F562F7C853300F62EC5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				29C87F552F7C853300F62EC5 /* SheetSnap: Table OCR.app */,
+				29C87F552F7C853300F62EC5 /* SheetSnap.app */,
 				F0AA00162F90000100CC0001 /* SheetSnapModelDownloadExtension.appex */,
 				29C87F662F7C853500F62EC5 /* SheetSnapTests.xctest */,
 				29C87F702F7C853500F62EC5 /* SheetSnapUITests.xctest */,
@@ -236,7 +236,7 @@
 			);
 			name = SheetSnap;
 			productName = SheetSnap;
-			productReference = 29C87F552F7C853300F62EC5 /* SheetSnap: Table OCR.app */;
+			productReference = 29C87F552F7C853300F62EC5 /* SheetSnap.app */;
 			productType = "com.apple.product-type.application";
 		};
 		29C87F652F7C853500F62EC5 /* SheetSnapTests */ = {
