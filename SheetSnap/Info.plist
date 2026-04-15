@@ -6,24 +6,6 @@
 	<string>$(TeamIdentifierPrefix)group.com.SheetSnap.SheetSnap.backgroundassets</string>
 	<key>BAHasManagedAssetPacks</key>
 	<true/>
-	<key>BAInitialDownloadRestrictions</key>
-	<dict>
-		<key>BADownloadAllowance</key>
-		<integer>550000000</integer>
-		<key>BADownloadDomainAllowList</key>
-		<array>
-			<string>casstao1.github.io</string>
-			<string>*.apple.com</string>
-		</array>
-		<key>BAEssentialDownloadAllowance</key>
-		<integer>0</integer>
-	</dict>
-	<key>BAEssentialMaxInstallSize</key>
-	<integer>0</integer>
-	<key>BAManifestURL</key>
-	<string>https://casstao1.github.io/SheetSnapOFFICIAL/background-assets/manifest.json</string>
-	<key>BAMaxInstallSize</key>
-	<integer>700000000</integer>
 	<key>BAUsesAppleHosting</key>
 	<true/>
 	<key>CFBundleDisplayName</key>
