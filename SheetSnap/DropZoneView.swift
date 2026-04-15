@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 struct DropZoneView: View {
     let onImageDropped: (URL) -> Void
     let onShowHistory: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
     @AppStorage("didPromptForInitialFileAccess") private var didPromptForInitialFileAccess = false
     @State private var isDragOver = false
     @State private var isLoadingDrop = false
@@ -12,6 +13,18 @@ struct DropZoneView: View {
 
     private var isScreenshotMode: Bool {
         ProcessInfo.processInfo.environment["SHEETSNAP_SCREENSHOT_MODE"] != nil
+    }
+
+    private var heroIconColor: Color {
+        colorScheme == .light ? Color.black.opacity(0.72) : Color.secondary
+    }
+
+    private var heroTitleColor: Color {
+        colorScheme == .light ? Color.black.opacity(0.74) : .primary
+    }
+
+    private var heroDescriptionColor: Color {
+        colorScheme == .light ? Color.black.opacity(0.64) : .secondary
     }
 
     var body: some View {
@@ -29,10 +42,20 @@ struct DropZoneView: View {
             Spacer()
 
             VStack(spacing: 18) {
-                ContentUnavailableView {
-                    Label("Import a Table Image", systemImage: "tablecells.badge.ellipsis")
-                } description: {
+                VStack(spacing: 12) {
+                    Image(systemName: "tablecells.badge.ellipsis")
+                        .font(.system(size: 46, weight: .medium))
+                        .foregroundStyle(heroIconColor)
+
+                    Text("Import a Table Image")
+                        .font(.system(size: 32, weight: .semibold))
+                        .foregroundStyle(heroTitleColor)
+
                     Text("Choose an image or drop one here to extract rows and columns.")
+                        .font(.title3)
+                        .foregroundStyle(heroDescriptionColor)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
                 GroupBox {
@@ -60,12 +83,12 @@ struct DropZoneView: View {
 
                 HStack(spacing: 10) {
                     Button("Choose Image", action: chooseFile)
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(StableProminentButtonStyle())
                     Button("Paste Image", action: handlePaste)
                         .buttonStyle(.bordered)
                 }
 
-                Text("Files stay on your Mac. The model may download on first launch.")
+                Text("Files stay on your Mac.")
                     .font(.footnote)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -223,5 +246,25 @@ struct DropZoneView: View {
         } catch {
             return nil
         }
+    }
+}
+
+private struct StableProminentButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.body.weight(.semibold))
+            .foregroundStyle(.white.opacity(isEnabled ? 1.0 : 0.75))
+            .padding(.horizontal, 18)
+            .padding(.vertical, 9)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.accentColor.opacity(isEnabled ? (configuration.isPressed ? 0.78 : 1.0) : 0.55))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(Color.black.opacity(0.08), lineWidth: 0.5)
+            )
     }
 }
