@@ -8,7 +8,9 @@ import System
 
 enum ModelAssetPackManager {
     static let assetPackID = "smoldocling-model"
-    static let appGroupID = "$(TeamIdentifierPrefix)group.com.SheetSnap.SheetSnap.backgroundassets"
+    static let appGroupID =
+        Bundle.main.object(forInfoDictionaryKey: "BAAppGroupID") as? String ??
+        "group.com.SheetSnap.SheetSnap.backgroundassets"
 
     private static let localModelFolderName = "SmolDocling-256M-preview-mlx-bf16-docling-snap"
     private static let relativeModelDirectory = "Models/\(localModelFolderName)"

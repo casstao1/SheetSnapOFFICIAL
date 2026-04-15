@@ -1,0 +1,19 @@
+{
+  "assetPackID": "smoldocling-model",
+  "downloadPolicy": {
+    "prefetch": {
+      "installationEventTypes": [
+        "firstInstallation",
+        "subsequentUpdate"
+      ]
+    }
+  },
+  "fileSelectors": [
+    {
+      "directory": "Models/SmolDocling-256M-preview-mlx-bf16-docling-snap"
+    }
+  ],
+  "platforms": [
+    "macOS"
+  ]
+}
