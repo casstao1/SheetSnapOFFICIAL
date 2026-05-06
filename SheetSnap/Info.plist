@@ -30,9 +30,19 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>SheetSnapTrialLengthDays</key>
+	<string>$(SHEETSNAP_TRIAL_LENGTH_DAYS)</string>
+	<key>SheetSnapAppStoreUnlockProductID</key>
+	<string>$(SHEETSNAP_APP_STORE_UNLOCK_PRODUCT_ID)</string>
+	<key>SheetSnapDistributionChannel</key>
+	<string>$(SHEETSNAP_DISTRIBUTION_CHANNEL)</string>
+	<key>SheetSnapSupportURL</key>
+	<string>https://casstao1.github.io/SheetSnapOFFICIAL/support/</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.productivity</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

@@ -57,15 +57,33 @@ func squareCrop(_ image: NSImage) -> NSImage {
 
 func resizedImage(_ image: NSImage, pixels: Int) -> Data {
     let targetSize = NSSize(width: pixels, height: pixels)
-    let out = NSImage(size: targetSize)
-    out.lockFocus()
-    NSGraphicsContext.current?.imageInterpolation = .high
-    image.draw(in: NSRect(origin: .zero, size: targetSize), from: .zero, operation: .copy, fraction: 1.0)
-    out.unlockFocus()
+    guard let rep = NSBitmapImageRep(
+        bitmapDataPlanes: nil,
+        pixelsWide: pixels,
+        pixelsHigh: pixels,
+        bitsPerSample: 8,
+        samplesPerPixel: 4,
+        hasAlpha: true,
+        isPlanar: false,
+        colorSpaceName: .deviceRGB,
+        bytesPerRow: 0,
+        bitsPerPixel: 0
+    ) else {
+        fatalError("Unable to create bitmap rep")
+    }
 
-    guard let tiff = out.tiffRepresentation,
-          let rep = NSBitmapImageRep(data: tiff),
-          let png = rep.representation(using: .png, properties: [:]) else {
+    rep.size = targetSize
+
+    NSGraphicsContext.saveGraphicsState()
+    guard let context = NSGraphicsContext(bitmapImageRep: rep) else {
+        fatalError("Unable to create graphics context")
+    }
+    NSGraphicsContext.current = context
+    context.imageInterpolation = .high
+    image.draw(in: NSRect(origin: .zero, size: targetSize), from: .zero, operation: .copy, fraction: 1.0)
+    NSGraphicsContext.restoreGraphicsState()
+
+    guard let png = rep.representation(using: .png, properties: [:]) else {
         fatalError("Unable to encode resized image")
     }
     return png

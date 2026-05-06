@@ -131,7 +131,6 @@ struct ResultView: View {
     private func initCells() {
         let parsed = tsv
             .split(separator: "\n", omittingEmptySubsequences: true)
-            .filter { !$0.hasPrefix("#") }
             .map { line -> [String] in
                 let cols = line.split(separator: "\t", omittingEmptySubsequences: false).map(String.init)
                 return cols
@@ -297,7 +296,7 @@ struct ResultView: View {
             .map { row in
                 row.map { cell in
                     let escaped = cell.replacingOccurrences(of: "\"", with: "\"\"")
-                    return escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n")
+                    return escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n") || escaped.contains("\r")
                         ? "\"\(escaped)\""
                         : escaped
                 }
@@ -339,11 +338,11 @@ struct ResultView: View {
         let csv = editableCells.map { row in
             row.map { cell in
                 let escaped = cell.replacingOccurrences(of: "\"", with: "\"\"")
-                return escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n")
+                return escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n") || escaped.contains("\r")
                     ? "\"\(escaped)\""
                     : escaped
             }.joined(separator: ",")
-        }.joined(separator: "\n")
+        }.joined(separator: "\r\n")
 
         do {
             try csv.write(to: url, atomically: true, encoding: .utf8)

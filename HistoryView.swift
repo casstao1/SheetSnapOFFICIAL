@@ -16,26 +16,40 @@ struct HistoryView: View {
         VStack(spacing: 0) {
             // Header
             HStack {
+                Button(action: onDismiss) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 12, weight: .semibold))
+                        Text("New Import")
+                            .font(.system(size: 13, weight: .medium))
+                    }
+                    .foregroundStyle(Color.accentColor)
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
+
                 HStack(spacing: 7) {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.secondary)
                     Text("Recent Extractions")
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
                 }
+
                 Spacer()
+
                 if !historyManager.entries.isEmpty {
                     Button("Clear All") { historyManager.clear() }
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
                         .buttonStyle(.plain)
+                } else {
+                    // Balance the layout when Clear All is hidden
+                    Text("Clear All")
+                        .font(.system(size: 11))
+                        .hidden()
                 }
-                Button(action: onDismiss) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 16))
-                        .foregroundColor(.secondary.opacity(0.6))
-                }
-                .buttonStyle(.plain)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 14)

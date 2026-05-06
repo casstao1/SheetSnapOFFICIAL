@@ -12,6 +12,10 @@ class TableModel: ObservableObject {
     @Published var state: AppState = .idle
     private var modelContainer: ModelContainer?
     private var modelLoadTask: Task<ModelContainer, Error>?
+    private var displayedDownloadPercent = 0
+    private var progressAnimationTask: Task<Void, Never>?
+    private var estimatedProgressTask: Task<Void, Never>?
+    private var pendingInputURL: URL?
     private static var didRegisterDoclingProcessorAlias = false
     #if DEBUG
     private static let allowsRemoteModelFallback = true
@@ -41,10 +45,41 @@ class TableModel: ObservableObject {
         preloadModel()
     }
 
-    /// Process a single image file.
-    func process(url: URL, history: HistoryManager? = nil) {
+    func retryLastOperation(history: HistoryManager? = nil) {
+        if let pendingInputURL {
+            process(url: pendingInputURL, history: history)
+            return
+        }
+
+        retryModelPreload()
+    }
+
+    func resetModelCache() {
         Task {
             do {
+                progressAnimationTask?.cancel()
+                estimatedProgressTask?.cancel()
+                try await Self.removeLocalModelCache()
+                modelContainer = nil
+                modelLoadTask = nil
+                displayedDownloadPercent = 0
+                state = .idle
+            } catch {
+                state = .error(error.localizedDescription)
+            }
+        }
+    }
+
+    /// Process a single image file.
+    func process(url: URL, history: HistoryManager? = nil) {
+        pendingInputURL = url
+        Task {
+            do {
+                if modelContainer == nil {
+                    state = .downloading(0)
+                    _ = try await loadModelIfNeeded()
+                }
+
                 state = .processing("Reading table…")
 
                 if let tsv = try await extractTableWithVision(on: url) {
@@ -94,7 +129,53 @@ class TableModel: ObservableObject {
             filename: url.deletingPathExtension().lastPathComponent
         )
         history?.add(entry)
+        pendingInputURL = nil
         state = .result(tsv)
+    }
+
+    private func setDownloadProgress(_ rawProgress: Double) {
+        let clamped = min(max(rawProgress, 0), 1)
+        let targetPercent = clamped >= 1 ? 100 : Int(floor(clamped * 100))
+        animateDownloadProgress(toPercent: targetPercent)
+    }
+
+    private func animateDownloadProgress(toPercent targetPercent: Int) {
+        guard targetPercent > displayedDownloadPercent else { return }
+
+        progressAnimationTask?.cancel()
+        progressAnimationTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            while self.displayedDownloadPercent < targetPercent {
+                guard !Task.isCancelled else { return }
+
+                let nextPercent = min(targetPercent, self.displayedDownloadPercent + 1)
+                self.displayedDownloadPercent = nextPercent
+                self.state = .downloading(Double(nextPercent) / 100)
+
+                if nextPercent < targetPercent {
+                    try? await Task.sleep(for: .milliseconds(45))
+                }
+            }
+        }
+    }
+
+    private func startEstimatedProgressUpdates() {
+        estimatedProgressTask?.cancel()
+        estimatedProgressTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            while !Task.isCancelled {
+                if case .downloading = self.state {
+                    if self.displayedDownloadPercent < 99 {
+                        self.animateDownloadProgress(toPercent: self.displayedDownloadPercent + 1)
+                    }
+                } else {
+                    return
+                }
+                try? await Task.sleep(for: .milliseconds(1100))
+            }
+        }
     }
 
     private func loadModelIfNeeded() async throws -> ModelContainer {
@@ -102,30 +183,35 @@ class TableModel: ObservableObject {
         if let task = modelLoadTask { return try await task.value }
 
         Self.registerDoclingProcessorAliasIfNeeded()
+        progressAnimationTask?.cancel()
+        estimatedProgressTask?.cancel()
+        displayedDownloadPercent = 0
         state = .downloading(0)
+        startEstimatedProgressUpdates()
 
         let hub = try Self.modelHub()
-        let config = try await Self.resolveModelConfiguration(
-            using: hub,
-            progressHandler: { [weak self] progress in
-                Task { @MainActor in
-                    guard let self else { return }
-                    switch self.state {
-                    case .idle, .downloading:
-                        self.state = .downloading(progress)
-                    default:
-                        break
-                    }
-                }
-            }
-        )
-
         let task = Task<ModelContainer, Error> {
             let maxAttempts = 3
             var lastError: Error?
+            var didResetCorruptCache = false
 
             for attempt in 1...maxAttempts {
                 do {
+                    let config = try await Self.resolveModelConfiguration(
+                        using: hub,
+                        progressHandler: { [weak self] progress in
+                            Task { @MainActor in
+                                guard let self else { return }
+                                switch self.state {
+                                case .idle, .downloading:
+                                    self.setDownloadProgress(progress)
+                                default:
+                                    break
+                                }
+                            }
+                        }
+                    )
+
                     return try await VLMModelFactory.shared.loadContainer(
                         hub: hub,
                         configuration: config
@@ -134,7 +220,7 @@ class TableModel: ObservableObject {
                             guard let self else { return }
                             switch self.state {
                             case .idle, .downloading:
-                                self.state = .downloading(progress.fractionCompleted)
+                                self.setDownloadProgress(progress.fractionCompleted)
                             default:
                                 break
                             }
@@ -142,6 +228,20 @@ class TableModel: ObservableObject {
                     }
                 } catch {
                     lastError = error
+
+                    if Self.isRecoverableModelCacheFailure(error), !didResetCorruptCache {
+                        didResetCorruptCache = true
+                        try await Self.removeLocalModelCache()
+                        await MainActor.run {
+                            self.progressAnimationTask?.cancel()
+                            self.estimatedProgressTask?.cancel()
+                            self.displayedDownloadPercent = 0
+                            self.state = .downloading(0)
+                            self.startEstimatedProgressUpdates()
+                        }
+                        continue
+                    }
+
                     guard Self.shouldRetryModelLoad(error), attempt < maxAttempts else {
                         break
                     }
@@ -162,9 +262,15 @@ class TableModel: ObservableObject {
             let container = try await task.value
             modelContainer = container
             modelLoadTask = nil
+            progressAnimationTask?.cancel()
+            estimatedProgressTask?.cancel()
+            displayedDownloadPercent = 0
             return container
         } catch {
             modelLoadTask = nil
+            progressAnimationTask?.cancel()
+            estimatedProgressTask?.cancel()
+            displayedDownloadPercent = 0
             throw error
         }
     }
@@ -315,7 +421,36 @@ class TableModel: ObservableObject {
         }
     }
 
+    private static func removeLocalModelCache() async throws {
+        try await ModelAssetPackManager.removeLocalModelCache()
+
+        let fileManager = FileManager.default
+        if let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let candidates = [
+                base.appendingPathComponent("SheetSnap", isDirectory: true),
+                base.appendingPathComponent(localModelFolderName, isDirectory: true),
+            ]
+
+            for candidate in candidates where fileManager.fileExists(atPath: candidate.path) {
+                try fileManager.removeItem(at: candidate)
+            }
+        }
+    }
+
     private static func shouldRetryModelLoad(_ error: Error) -> Bool {
+        let message = error.localizedDescription.lowercased()
+        return message.contains("status code: 500")
+            || message.contains("status code: 502")
+            || message.contains("status code: 503")
+            || message.contains("status code: 504")
+            || message.contains("tls error")
+            || message.contains("secure connection")
+            || message.contains("nsurlerrordomain error -1200")
+    }
+
+    private static func isTransientModelHostFailure(_ error: Error) -> Bool {
+        // Only server-side 5xx responses indicate the model host itself is unavailable.
+        // TLS/SSL and connection errors are local or network issues, not host failures.
         let message = error.localizedDescription.lowercased()
         return message.contains("status code: 500")
             || message.contains("status code: 502")
@@ -323,12 +458,15 @@ class TableModel: ObservableObject {
             || message.contains("status code: 504")
     }
 
-    private static func isTransientModelHostFailure(_ error: Error) -> Bool {
+    private static func isRecoverableModelCacheFailure(_ error: Error) -> Bool {
         let message = error.localizedDescription.lowercased()
-        return message.contains("status code: 500")
-            || message.contains("status code: 502")
-            || message.contains("status code: 503")
-            || message.contains("status code: 504")
+        return message.contains("modality_projection.proj.weight not found")
+            || message.contains("weight not found in idefics3")
+            || message.contains("not found in idefics3.")
+            || message.contains("not found in idefics3visionmodel")
+            || message.contains("key vision_model.")
+            || message.contains("key connector.")
+            || message.contains("tensor named")
     }
 
     private func runInference(

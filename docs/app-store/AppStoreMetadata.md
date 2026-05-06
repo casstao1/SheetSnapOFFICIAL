@@ -29,7 +29,7 @@ SheetSnap: Table OCR converts photos and screenshots of tables into editable spr
 ## Full Description
 SheetSnap: Table OCR helps you turn table images into clean spreadsheet data on macOS.
 
-Drop in a screenshot, paste an image, or choose a file. SheetSnap detects the table, extracts rows and columns, and lets you copy the result or export it as CSV or Excel.
+Drop in a screenshot or choose a file. SheetSnap detects the table, extracts rows and columns, and lets you copy the result or export it as CSV or Excel.
 
 Built for fast utility work:
 
@@ -49,7 +49,7 @@ table,image,ocr,excel,csv,spreadsheet,scan,sheets,data,photo to excel
 Productivity
 
 ## Pricing
-Launch price: $14.99 one-time purchase
+Free download with a one-time non-consumable unlock after the 7-day trial.
 
 ## App Store Connect Fields
 Use these values directly in App Store Connect:
@@ -57,7 +57,8 @@ Use these values directly in App Store Connect:
 - Name: `SheetSnap: Table OCR`
 - Subtitle: `Photo to CSV, Excel, Sheets`
 - Primary category: `Productivity`
-- Price: `$14.99`
+- Price: `Free`
+- In-App Purchase: one-time non-consumable unlock, recommended price `$14.99`
 - Keywords: `table,image,ocr,excel,csv,spreadsheet,scan,sheets,data,photo to excel`
 
 ## Privacy Summary
@@ -66,7 +67,7 @@ Recommended if accurate for the shipping build:
 - Data Not Collected
 - No Tracking
 - Files processed locally on device
-- Model asset downloaded on first launch
+- Model asset downloaded on demand after the user selects the first image
 
 Verify this against the final shipping implementation before submission.
 
@@ -81,19 +82,20 @@ These pages are included in this repo under the GitHub Pages `docs/` directory. 
 ## App Review Notes
 SheetSnap: Table OCR extracts tables from user-selected images on macOS.
 
-The app may download an Apple-hosted model asset on first launch before the first extraction. After the asset is available, users can import an image by choosing a file, dropping an image into the window, or pasting an image from the clipboard.
+The app may download an Apple-hosted model asset after the user chooses or drops the first image. After the asset is available, the app continues processing the selected image automatically.
 
 The app uses standard macOS open/save panels for user-selected file access.
 
 ## Screenshot Shot List
 Capture these as clean native macOS window screenshots with no desktop clutter.
+Do not upload an app preview for this resubmission. Use screenshots only.
 
 ### 1. Import Screen
 Headline:
 Turn Any Table Photo Into Spreadsheet Data
 
 Caption:
-Drop an image, choose a file, or paste from the clipboard.
+Drop an image or choose a file.
 
 Target UI:
 - Idle import screen
@@ -177,12 +179,12 @@ Avoid:
 
 ## Submission Checklist
 - Confirm Release archive builds cleanly
-- Confirm Apple-hosted model asset downloads on first launch
+- Confirm Apple-hosted model asset downloads after choosing or dropping the first image
 - Confirm offline relaunch works after the model asset is downloaded
-- Confirm drag, choose file, and paste workflows all work
+- Confirm drag and choose file workflows both work
 - Confirm copy, CSV, and Excel export all work
 - Fill App Privacy details accurately
 - Add support URL and privacy policy URL
 - Upload the premium polished screenshots
-- Add App Review Notes about first-launch model download
+- Add App Review Notes about on-demand model download
 - Validate the build in App Store Connect before submitting for review

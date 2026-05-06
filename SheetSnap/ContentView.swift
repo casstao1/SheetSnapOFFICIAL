@@ -10,11 +10,40 @@ enum AppState: Equatable {
     case error(String)
 }
 
+private enum AppVisualState: Equatable {
+    case idle
+    case downloading
+    case processing
+    case result
+    case history
+    case error
+
+    init(_ state: AppState) {
+        switch state {
+        case .idle:
+            self = .idle
+        case .downloading:
+            self = .downloading
+        case .processing:
+            self = .processing
+        case .result:
+            self = .result
+        case .history:
+            self = .history
+        case .error:
+            self = .error
+        }
+    }
+}
+
 struct ContentView: View {
     @StateObject private var model = TableModel()
     @EnvironmentObject private var historyManager: HistoryManager
+    @EnvironmentObject private var trialManager: TrialManager
     @Environment(\.requestReview) private var requestReview
     @AppStorage("successfulExtractionCount") private var successfulExtractionCount = 0
+    @AppStorage("reviewPromptSuccessfulCount") private var reviewPromptSuccessfulCount = 0
+    @AppStorage("reviewPromptTrackedVersion") private var reviewPromptTrackedVersion = ""
     @AppStorage("lastVersionPromptedForReview") private var lastVersionPromptedForReview = ""
     @State private var reviewPromptTask: Task<Void, Never>?
 
@@ -22,77 +51,115 @@ struct ContentView: View {
         ScreenshotScenario(rawValue: ProcessInfo.processInfo.environment["SHEETSNAP_SCREENSHOT_MODE"] ?? "")
     }
 
+    private var visualState: AppVisualState {
+        AppVisualState(model.state)
+    }
+
+    private var isScreenshotMode: Bool {
+        screenshotScenario != nil
+    }
+
     var body: some View {
         ZStack {
             Color(NSColor.windowBackgroundColor).ignoresSafeArea()
-            switch model.state {
-            case .idle:
-                DropZoneView(
-                    onImageDropped: { url in
-                        model.process(url: url, history: historyManager)
-                    },
-                    onShowHistory: { model.state = .history }
-                )
-                .transition(.opacity)
-
-            case .downloading(let progress):
-                DownloadView(progress: progress)
+            if trialManager.isResolvingAccessState && !isScreenshotMode {
+                ProgressView()
+                    .controlSize(.large)
+                    .tint(.accentColor)
+            } else if trialManager.requiresPurchase && !isScreenshotMode {
+                PaywallView()
+                    .transition(.opacity)
+            } else {
+                switch model.state {
+                case .idle:
+                    DropZoneView(
+                        trialStatusText: trialManager.trialBannerText,
+                        onImageDropped: { url in
+                            model.process(url: url, history: historyManager)
+                        },
+                        onShowHistory: { model.state = .history }
+                    )
                     .transition(.opacity)
 
-            case .processing(let step):
-                ProcessingView(currentStep: step)
+                case .downloading(let progress):
+                    DownloadView(progress: progress)
+                        .transition(.opacity)
+
+                case .processing(let step):
+                    ProcessingView(currentStep: step)
+                        .transition(.opacity)
+
+                case .result(let tsv):
+                    ResultView(tsv: tsv,
+                               onReset: { model.state = .idle },
+                               onSaved: { _ in })
+                        .transition(.opacity)
+
+                case .history:
+                    HistoryView(
+                        onSelect: { entry in model.state = .result(entry.tsv) },
+                        onDismiss: { model.state = .idle }
+                    )
                     .transition(.opacity)
 
-            case .result(let tsv):
-                ResultView(tsv: tsv,
-                           onReset: { model.state = .idle },
-                           onSaved: { entry in historyManager.add(entry) })
-                    .transition(.opacity)
-
-            case .history:
-                HistoryView(
-                    onSelect: { entry in model.state = .result(entry.tsv) },
-                    onDismiss: { model.state = .idle }
-                )
-                .transition(.opacity)
-
-            case .error(let msg):
-                ErrorView(message: msg) { model.retryModelPreload() }
-                    .transition(.opacity)
+                case .error(let msg):
+                    ErrorView(message: msg) {
+                        model.retryLastOperation(history: historyManager)
+                    }
+                        .transition(.opacity)
+                }
             }
         }
         .frame(minWidth: 520, minHeight: 560)
-        .animation(.easeInOut(duration: 0.25), value: model.state)
+        .animation(.easeInOut(duration: 0.25), value: visualState)
         .task {
             if configureScreenshotModeIfNeeded() {
                 return
             }
-            model.preloadModel()
         }
         .onChange(of: model.state) { oldState, newState in
             guard case .result = newState else { return }
             guard case .result = oldState else {
+                // Navigating from history to a result is not a new extraction
+                if case .history = oldState { return }
                 successfulExtractionCount += 1
-                scheduleReviewPromptIfNeeded()
+                recordSuccessfulExtractionForReview()
                 return
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .resetModelCache)) { _ in
+            model.resetModelCache()
+        }
     }
 
-    private func scheduleReviewPromptIfNeeded() {
-        let currentVersion = Bundle.main.object(
-            forInfoDictionaryKey: "CFBundleShortVersionString"
-        ) as? String ?? "1.0"
+    private func recordSuccessfulExtractionForReview() {
+        let currentVersion = currentAppVersion
+        if reviewPromptTrackedVersion != currentVersion {
+            reviewPromptTrackedVersion = currentVersion
+            reviewPromptSuccessfulCount = 0
+        }
 
-        guard successfulExtractionCount >= 3 else { return }
+        reviewPromptSuccessfulCount += 1
+        scheduleReviewPromptIfNeeded(for: currentVersion)
+    }
+
+    private func scheduleReviewPromptIfNeeded(for currentVersion: String) {
+        guard reviewPromptSuccessfulCount == 3 else { return }
         guard lastVersionPromptedForReview != currentVersion else { return }
 
-        lastVersionPromptedForReview = currentVersion
         reviewPromptTask?.cancel()
         reviewPromptTask = Task {
             try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
             requestReview()
+            lastVersionPromptedForReview = currentVersion
         }
+    }
+
+    private var currentAppVersion: String {
+        Bundle.main.object(
+            forInfoDictionaryKey: "CFBundleShortVersionString"
+        ) as? String ?? "1.0"
     }
 
     @discardableResult

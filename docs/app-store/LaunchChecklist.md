@@ -8,6 +8,7 @@ Repo-side launch prep is largely done:
 
 - App Store title, subtitle, keywords, pricing, screenshots, support/privacy pages, and review-note copy are prepared.
 - Premium screenshot assets are ready in `docs/app-store/app-store-upload-screenshots`.
+- Do not upload an app preview for this resubmission. Use screenshots only.
 - App icon assets are wired in `SheetSnap/Assets.xcassets/AppIcon.appiconset`.
 
 The remaining steps are mostly account-side or store-side actions.
@@ -19,7 +20,8 @@ Use these values:
 - Name: `SheetSnap: Table OCR`
 - Subtitle: `Photo to CSV, Excel, Sheets`
 - Category: `Productivity`
-- Price: `$14.99`
+- Price: `Free`
+- In-App Purchase: one-time non-consumable unlock, recommended price `$14.99`
 - Keywords: `table,image,ocr,excel,csv,spreadsheet,scan,sheets,data,photo to excel`
 
 ## URLs
@@ -62,7 +64,7 @@ Recommended answers, only if they are accurate for the shipping build:
 - Data Not Collected
 - No Tracking
 - Files processed locally on device
-- Model asset downloaded on first launch
+- Model asset downloaded on demand after the user selects the first image
 
 Verify these answers against the final shipped behavior before submission.
 
@@ -72,7 +74,7 @@ Paste this into App Review Notes:
 
 `SheetSnap: Table OCR extracts tables from user-selected images on macOS.`
 
-`The app may download an Apple-hosted model asset on first launch before the first extraction. After the asset is available, users can import an image by choosing a file, dropping an image into the window, or pasting an image from the clipboard.`
+`The app may download an Apple-hosted model asset after the user chooses or drops the first image. After the asset is available, the app continues processing the selected image automatically.`
 
 `The app uses standard macOS open/save panels for user-selected file access.`
 
@@ -81,10 +83,9 @@ Paste this into App Review Notes:
 Run through these flows on a clean machine or clean macOS user account:
 
 - Launch app
-- First-launch model asset download
+- Choose or drop an image and confirm the model asset downloads on demand
 - Import with `Choose Image`
 - Import via drag and drop
-- Import via paste image
 - Extract a table successfully
 - Copy output into a spreadsheet app
 - Export CSV
@@ -113,7 +114,7 @@ Confirm all of the following:
 - Review Notes are added
 - Premium screenshots are uploaded
 - Final icon is correct in the archive
-- First-launch model flow works
+- First-import model flow works
 - Release archive validates successfully
 
 ## Current External Blockers

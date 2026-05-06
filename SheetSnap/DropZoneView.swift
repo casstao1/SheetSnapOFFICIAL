@@ -2,39 +2,30 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct DropZoneView: View {
+    let trialStatusText: String?
     let onImageDropped: (URL) -> Void
     let onShowHistory: () -> Void
-    @Environment(\.colorScheme) private var colorScheme
-    @AppStorage("didPromptForInitialFileAccess") private var didPromptForInitialFileAccess = false
     @State private var isDragOver = false
     @State private var isLoadingDrop = false
     @State private var openPanel: NSOpenPanel?
-    @State private var didTriggerInitialPrompt = false
 
     private var isScreenshotMode: Bool {
         ProcessInfo.processInfo.environment["SHEETSNAP_SCREENSHOT_MODE"] != nil
     }
 
-    private var heroIconColor: Color {
-        colorScheme == .light ? Color.black.opacity(0.72) : Color.secondary
-    }
-
-    private var heroTitleColor: Color {
-        colorScheme == .light ? Color.black.opacity(0.74) : .primary
-    }
-
-    private var heroDescriptionColor: Color {
-        colorScheme == .light ? Color.black.opacity(0.64) : .secondary
-    }
-
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                Label("SheetSnap", systemImage: "tablecells")
-                    .font(.headline)
+                Label {
+                    Text("SheetSnap")
+                } icon: {
+                    Image(systemName: "tablecells")
+                        .foregroundStyle(Color.accentColor)
+                }
+                .font(.headline)
                 Spacer()
                 Button("History", action: onShowHistory)
-                    .buttonStyle(.bordered)
+                    .buttonStyle(BlueSolidButtonStyle())
             }
             .padding(.horizontal, 24)
             .padding(.top, 18)
@@ -42,20 +33,15 @@ struct DropZoneView: View {
             Spacer()
 
             VStack(spacing: 18) {
-                VStack(spacing: 12) {
-                    Image(systemName: "tablecells.badge.ellipsis")
-                        .font(.system(size: 46, weight: .medium))
-                        .foregroundStyle(heroIconColor)
-
-                    Text("Import a Table Image")
-                        .font(.system(size: 32, weight: .semibold))
-                        .foregroundStyle(heroTitleColor)
-
+                ContentUnavailableView {
+                    VStack(spacing: 10) {
+                        Image(systemName: "tablecells.badge.ellipsis")
+                            .font(.system(size: 42, weight: .medium))
+                            .foregroundStyle(Color.accentColor)
+                        Text("Import a Table Image")
+                    }
+                } description: {
                     Text("Choose an image or drop one here to extract rows and columns.")
-                        .font(.title3)
-                        .foregroundStyle(heroDescriptionColor)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
 
                 GroupBox {
@@ -77,18 +63,27 @@ struct DropZoneView: View {
                 }
                 .overlay {
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(isDragOver ? Color.accentColor : Color.clear, lineWidth: 2)
+                        .stroke(
+                            isDragOver ? Color.accentColor : Color.accentColor.opacity(0.28),
+                            style: StrokeStyle(
+                                lineWidth: isDragOver ? 2 : 1.5,
+                                dash: isDragOver ? [] : [6, 3]
+                            )
+                        )
                 }
                 .onDrop(of: [.image, .fileURL], isTargeted: $isDragOver, perform: handleDrop)
 
-                HStack(spacing: 10) {
-                    Button("Choose Image", action: chooseFile)
-                        .buttonStyle(StableProminentButtonStyle())
-                    Button("Paste Image", action: handlePaste)
-                        .buttonStyle(.bordered)
+                Button("Choose Image") { chooseFile() }
+                    .buttonStyle(BlueSolidButtonStyle())
+
+                if let trialStatusText {
+                    Text(trialStatusText)
+                        .font(.footnote.weight(.medium))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
                 }
 
-                Text("Files stay on your Mac.")
+                Text("Files stay on your Mac. The model may download on first import.")
                     .font(.footnote)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -99,13 +94,6 @@ struct DropZoneView: View {
             Spacer()
         }
         .padding(.bottom, 20)
-        // Listen for Cmd+Shift+V paste notification
-        .onReceive(NotificationCenter.default.publisher(for: .pasteImage)) { _ in
-            handlePaste()
-        }
-        .task {
-            requestInitialFileAccessIfNeeded()
-        }
     }
 
     // MARK: - Drop handler
@@ -179,49 +167,11 @@ struct DropZoneView: View {
         }
     }
 
-    // MARK: - Paste from clipboard
-
-    func handlePaste() {
-        let pb = NSPasteboard.general
-        // Try to get image data from clipboard
-        if let data = pb.data(forType: .tiff) ?? pb.data(forType: .png) {
-            saveAndProcess(data: data, ext: "png")
-        } else if let img = NSImage(pasteboard: pb) {
-            // Convert NSImage to PNG data
-            if let tiff = img.tiffRepresentation,
-               let rep = NSBitmapImageRep(data: tiff),
-               let png = rep.representation(using: .png, properties: [:]) {
-                saveAndProcess(data: png, ext: "png")
-            }
-        }
-    }
-
-    private func saveAndProcess(data: Data, ext: String) {
-        let tmp = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
-            .appendingPathExtension(ext)
-        do {
-            try data.write(to: tmp)
-            onImageDropped(tmp)
-        } catch {
-            // Silently fail — no URL to process
-        }
-    }
-
     private func dismissOpenPanelIfNeeded() {
         guard let panel = openPanel else { return }
         openPanel = nil
         panel.cancel(nil)
         panel.orderOut(nil)
-    }
-
-    private func requestInitialFileAccessIfNeeded() {
-        guard !didTriggerInitialPrompt else { return }
-        didTriggerInitialPrompt = true
-        guard !isScreenshotMode else { return }
-        guard !didPromptForInitialFileAccess else { return }
-        didPromptForInitialFileAccess = true
-        chooseFile()
     }
 
     private func importAccessibleCopy(of sourceURL: URL) -> URL? {
@@ -249,22 +199,29 @@ struct DropZoneView: View {
     }
 }
 
-private struct StableProminentButtonStyle: ButtonStyle {
+private struct BlueSolidButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.body.weight(.semibold))
-            .foregroundStyle(.white.opacity(isEnabled ? 1.0 : 0.75))
-            .padding(.horizontal, 18)
-            .padding(.vertical, 9)
+            .font(.system(size: 13, weight: .medium))
+            .foregroundStyle(Color.white.opacity(isEnabled ? 1 : 0.7))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 5)
             .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color.accentColor.opacity(isEnabled ? (configuration.isPressed ? 0.78 : 1.0) : 0.55))
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(
+                        Color(
+                            red: 0.05,
+                            green: 0.48,
+                            blue: 0.98,
+                            opacity: configuration.isPressed ? 0.82 : (isEnabled ? 1 : 0.65)
+                        )
+                    )
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .stroke(Color.black.opacity(0.08), lineWidth: 0.5)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
             )
     }
 }

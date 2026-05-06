@@ -2,42 +2,49 @@ import SwiftUI
 
 struct ProcessingView: View {
     let currentStep: String
-    @State private var rotation = 0.0
+
+    @State private var spinRotation: Double = 0
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 14) {
             Spacer()
 
-            // Spinner
+            // Spinning ring with icon
             ZStack {
                 Circle()
-                    .stroke(Color.accentColor.opacity(0.12), lineWidth: 3)
-                    .frame(width: 64, height: 64)
+                    .stroke(Color.accentColor.opacity(0.15), lineWidth: 3)
+                    .frame(width: 56, height: 56)
+
                 Circle()
-                    .trim(from: 0, to: 0.72)
-                    .stroke(Color.accentColor,
-                            style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                    .frame(width: 64, height: 64)
-                    .rotationEffect(.degrees(rotation))
+                    .trim(from: 0, to: 0.78)
+                    .stroke(
+                        Color.accentColor,
+                        style: StrokeStyle(lineWidth: 3, lineCap: .round)
+                    )
+                    .frame(width: 56, height: 56)
+                    .rotationEffect(.degrees(spinRotation))
+
                 Image(systemName: "tablecells")
-                    .font(.system(size: 20, weight: .light))
-                    .foregroundColor(.accentColor.opacity(0.8))
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundStyle(Color.accentColor)
             }
 
-            VStack(spacing: 6) {
-                Text("Reading your table…")
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
-                Text(currentStep)
-                    .font(.system(size: 12))
-                    .foregroundColor(.secondary)
-                    .animation(.easeInOut, value: currentStep)
-            }
+            // Title
+            Text("Reading your table...")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.primary)
+
+            // Current step
+            Text(currentStep)
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
 
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             withAnimation(.linear(duration: 1.0).repeatForever(autoreverses: false)) {
-                rotation = 360
+                spinRotation = 360
             }
         }
     }

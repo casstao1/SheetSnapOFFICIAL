@@ -1,12 +1,7 @@
 {
   "assetPackID": "smoldocling-model",
   "downloadPolicy": {
-    "prefetch": {
-      "installationEventTypes": [
-        "firstInstallation",
-        "subsequentUpdate"
-      ]
-    }
+    "onDemand": {}
   },
   "fileSelectors": [
     {

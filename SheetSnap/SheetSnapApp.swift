@@ -1,27 +1,30 @@
 import SwiftUI
 
 extension Notification.Name {
-    static let pasteImage = Notification.Name("SheetSnap.pasteImage")
+    static let resetModelCache = Notification.Name("SheetSnap.resetModelCache")
 }
 
 @main
 struct SheetSnapApp: App {
     @StateObject private var historyManager = HistoryManager()
+    @StateObject private var trialManager = TrialManager()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(historyManager)
+                .environmentObject(trialManager)
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
+        #if DEBUG
         .commands {
-            CommandGroup(after: .pasteboard) {
-                Button("Paste Image") {
-                    NotificationCenter.default.post(name: .pasteImage, object: nil)
+            CommandMenu("Debug") {
+                Button("Reset Model Cache") {
+                    NotificationCenter.default.post(name: .resetModelCache, object: nil)
                 }
-                .keyboardShortcut("v", modifiers: [.command, .shift])
             }
         }
+        #endif
     }
 }
